@@ -1,5 +1,5 @@
 path='C:\Users\cat97\Documents\UniofSurrey\sem1\EEEM030-speech\assignment1\speech-samples\speech\';
-file=strcat(path,'heed_m.wav')
+file=strcat(path,'heed_f.wav')
 
 [x, Fs] = audioread(file);
 num_samples = Fs * 0.1;      % 100ms samples
@@ -13,7 +13,7 @@ t = (0:length(cropped_x) - 1) / Fs;     % for plotting
 %% Noise filtering
 % calculate autocorrolation
 [autocorr_values,lags] = xcorr(cropped_x, 'coeff'); % Calculate normalized autocorrelation
-figure;
+figure(1);
 plot(lags/Fs,autocorr_values);
 xlabel('Lag');
 ylabel('Autocorrelation');
@@ -25,7 +25,7 @@ short = mean(diff(lcsh))/Fs    % noise  freq
 % longest dist peaks (max lag)
 noise_peak_thres = 0.25;
 [pklg,lclg] = findpeaks(autocorr_values,'MinPeakDistance',ceil(short),'MinPeakheight',noise_peak_thres);
-long = max(diff(lclg))/Fs   % for fundemental freq
+long = mean(diff(lclg))/Fs   % for fundemental freq
 
 % check values functions
 % max(diff(lcsh))/Fs
@@ -58,7 +58,7 @@ noiseFrequencies = frequencies(psd > noise_peak_thres);
 % end
 
 % signal plot
-figure;
+figure(2);
 plot(t, cropped_x, 'b-');
 hold on;
 plot(t, filtered_x,'r-');
@@ -74,7 +74,7 @@ frequencies = (0:N-1) * Fs / N;
 amplitude_spectrum = abs(fft(filtered_x));
 amplitude_spectrum_db = 20 * log10(amplitude_spectrum);
 
-figure;
+figure(3);
 plot(frequencies, amplitude_spectrum_db);
 xlabel('Frequency (Hz)');
 ylabel('Amplitude (dB)');
@@ -89,15 +89,20 @@ title('Amplitude Spectrum of Filtered Signal');
 % title('Signal Spectrogram')
 
 
-% lpc
+%% lpc
 lpc_coefficients = lpc(filtered_x, 10);
 [H, w] = freqz(1, lpc_coefficients, 1024);
 
-figure;
+%% plot freq response
+figure(4);
 plot(w/pi, 20*log10(abs(H)));
 xlabel('Normalized Frequency (\pi radians/sample)');
 ylabel('Amplitude (dB)');
 title('LPC Filter Frequency Response');
 
-% first 3 formant frequencies
-
+%% first 3 formant frequencies
+poles = roots(lpc_coefficients);
+mag = abs(poles);
+formant_freq_angle = angle(poles);
+formant_freq_hz = (formant_freq_angle / (2*pi)) * Fs;
+first_3_formant = formant_freq_hz([1,3,5])
