@@ -89,11 +89,12 @@ title('Amplitude Spectrum of Filtered Signal');
 %% lpc
 lpc_coefficients = lpc(filtered_x, 20);
 [H, w] = freqz(1, lpc_coefficients, 1024);
+frequency_hz = (w / (2 * pi)) * Fs;
 
 %% plot freq response
 figure(4);
-plot(w/pi, 20*log10(abs(H)));
-xlabel('Normalized Frequency (\pi radians/sample)');
+plot(frequency_hz, 20*log10(abs(H)));
+xlabel('Frequency (Hz)');
 ylabel('Amplitude (dB)');
 title('LPC Filter Frequency Response');
 
