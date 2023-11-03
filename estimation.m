@@ -1,8 +1,9 @@
 path='C:\Users\cat97\Documents\UniofSurrey\sem1\EEEM030-speech\assignment1\speech-samples\speech\';
-file=strcat(path,'heed_f.wav')
+file=strcat(path,'heed_m.wav')
 
 [x, Fs] = audioread(file);
-num_samples = Fs * 0.1;      % 100ms samples
+sample_length = 0.1;    % in seconds 
+num_samples = Fs * sample_length;     
 % num_samples = Fs * 0.06;      % pure tone samples
 start = 0.05*Fs;
 cropped_x = x(start:start+num_samples);
@@ -23,21 +24,20 @@ ylabel('Autocorrelation');
 short = mean(diff(lcsh))/Fs    % noise  freq
 
 % longest dist peaks (max lag)
-noise_peak_thres = 0.25;
-[pklg,lclg] = findpeaks(autocorr_values,'MinPeakDistance',ceil(short),'MinPeakheight',noise_peak_thres);
-long = mean(diff(lclg))/Fs   % for fundemental freq
+[pklg,lclg] = findpeaks(autocorr_values,'MinPeakDistance',ceil(short),'MinPeakheight',0.3);
+long = max(diff(lclg))/Fs  % for fundemental freq
 
 % check values functions
 % max(diff(lcsh))/Fs
 % max(diff(lclg))/Fs
 
-%% TODO calculate fundemental freq
+%% calculate fundemental freq
+f1 = (long / (2*pi)) * Fs
 
 hold on
 pks = plot(lags(lcsh)/Fs,pksh,'or', lags(lclg)/Fs,pklg+0.05,'vk');
 hold off
 legend(pks,[repmat('Period: ',[2 1]) num2str([short;long],0)])
-
 
 % Calculate the power spectral density (PSD) of the autocorrelation
 N = length(autocorr_values);
@@ -45,12 +45,17 @@ frequencies = (0:N-1) * Fs / N;
 psd = abs(fft(autocorr_values));
 
 % psd graph for checking 
-% plot(frequencies, psd);
-% xlabel('Frequency (Hz)');
-% ylabel('Power Spectral Density');
-% title('PSD of Autocorrelation');
+figure(5);
+plot(frequencies, psd);
+xlabel('Frequency (Hz)');
+ylabel('Power Spectral Density');
+title('PSD of Autocorrelation');
 
-noiseFrequencies = frequencies(psd > noise_peak_thres);
+% filter noise frequency
+noise_peak_thres = 0.25;
+noiseFrequencies = frequencies(psd < noise_peak_thres);
+noiseFrequencies = noiseFrequencies(noiseFrequencies > 0);
+noiseFrequencies = noiseFrequencies(noiseFrequencies <= 12000);
 % for i = 1:10
     % high pass filter
     d = designfilt('highpassiir', 'FilterOrder', 10, 'StopbandFrequency', noiseFrequencies(1), 'SampleRate', Fs);
@@ -66,7 +71,7 @@ hold off;
 xlabel('Time (seconds)');
 ylabel('Amplitude');
 title('Sound Waveform');
-legend('original cropped', 'filtered')
+legend('original', 'filtered')
 
 %% plot amplitude specturm
 N = length(filtered_x);
@@ -81,16 +86,8 @@ ylabel('Amplitude (dB)');
 title('Amplitude Spectrum of Filtered Signal');
 
 
-% % spectrogram
-% segmentlen = 100;
-% noverlap = 90;
-% NFFT = 128;
-% spectrogram(x,segmentlen,noverlap,NFFT,Fs,'yaxis');
-% title('Signal Spectrogram')
-
-
 %% lpc
-lpc_coefficients = lpc(filtered_x, 10);
+lpc_coefficients = lpc(filtered_x, 20);
 [H, w] = freqz(1, lpc_coefficients, 1024);
 
 %% plot freq response
@@ -103,6 +100,7 @@ title('LPC Filter Frequency Response');
 %% first 3 formant frequencies
 poles = roots(lpc_coefficients);
 mag = abs(poles);
-formant_freq_angle = angle(poles);
-formant_freq_hz = (formant_freq_angle / (2*pi)) * Fs;
-first_3_formant = formant_freq_hz([1,3,5])
+pole_angle = angle(poles);
+formant_freq_hz = (pole_angle / (2*pi)) * Fs;
+[formant_freq_hz, ind] = sort(formant_freq_hz(formant_freq_hz > 0));
+first_3_formant = formant_freq_hz([1:3])
