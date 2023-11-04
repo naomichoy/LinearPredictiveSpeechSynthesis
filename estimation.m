@@ -1,5 +1,6 @@
 path='C:\Users\cat97\Documents\UniofSurrey\sem1\EEEM030-speech\assignment1\speech-samples\speech\';
-file=strcat(path,'heed_m.wav')
+filename = 'heed_m.wav';
+file=strcat(path,filename)
 
 [x, Fs] = audioread(file);
 sample_length = 0.1;    % in seconds 
@@ -45,11 +46,11 @@ frequencies = (0:N-1) * Fs / N;
 psd = abs(fft(autocorr_values));
 
 % psd graph for checking 
-figure(5);
-plot(frequencies, psd);
-xlabel('Frequency (Hz)');
-ylabel('Power Spectral Density');
-title('PSD of Autocorrelation');
+% figure;
+% plot(frequencies, psd);
+% xlabel('Frequency (Hz)');
+% ylabel('Power Spectral Density');
+% title('PSD of Autocorrelation');
 
 % filter noise frequency
 noise_peak_thres = 0.25;
@@ -87,13 +88,30 @@ title('Amplitude Spectrum of Filtered Signal');
 
 
 %% lpc
-lpc_coefficients = lpc(filtered_x, 20);
+order = 30;
+lpc_coefficients = lpc(filtered_x, order);
 [H, w] = freqz(1, lpc_coefficients, 1024);
 frequency_hz = (w / (2 * pi)) * Fs;
+
+fout = sprintf('%s_lpc%d_%d.mat', filename, order, num_samples);
+save(fout,'lpc_coefficients');
 
 %% plot freq response
 figure(4);
 plot(frequency_hz, 20*log10(abs(H)));
+xlabel('Frequency (Hz)');
+ylabel('Amplitude (dB)');
+title('LPC Filter Frequency Response');
+
+figure(5);
+plot(frequency_hz, 20*log10(abs(H)), "r-", 'LineWidth', 1.5);
+hold on;
+plot(frequencies, amplitude_spectrum_db, "b-");
+hold off
+% Make the second line transparent
+plotHandle = gca; 
+lineHandles = get(plotHandle, 'Children'); 
+set(lineHandles(1), 'Color', [0 0 1 0.3]);
 xlabel('Frequency (Hz)');
 ylabel('Amplitude (dB)');
 title('LPC Filter Frequency Response');
