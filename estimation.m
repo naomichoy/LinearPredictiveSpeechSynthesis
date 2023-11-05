@@ -1,6 +1,6 @@
 path='C:\Users\cat97\Documents\UniofSurrey\sem1\EEEM030-speech\assignment1\speech-samples\speech\';
-filename = 'heed_m.wav';
-file=strcat(path,filename)
+filename = 'heed_f';
+file=strcat(path,filename, ".wav")
 
 [x, Fs] = audioread(file);
 sample_length = 0.1;    % in seconds 
@@ -63,6 +63,8 @@ noiseFrequencies = noiseFrequencies(noiseFrequencies <= 12000);
     filtered_x = filter(d, cropped_x);
 % end
 
+pwr = max(abs(filtered_x))
+
 % signal plot
 figure(2);
 plot(t, cropped_x, 'b-');
@@ -88,7 +90,7 @@ title('Amplitude Spectrum of Filtered Signal');
 
 
 %% lpc
-order = 30;
+order = 20;
 lpc_coefficients = lpc(filtered_x, order);
 [H, w] = freqz(1, lpc_coefficients, 1024);
 frequency_hz = (w / (2 * pi)) * Fs;
@@ -111,7 +113,7 @@ hold off
 % Make the second line transparent
 plotHandle = gca; 
 lineHandles = get(plotHandle, 'Children'); 
-set(lineHandles(1), 'Color', [0 0 1 0.3]);
+set(lineHandles(1), 'Color', [0 0 1 0.2]);
 xlabel('Frequency (Hz)');
 ylabel('Amplitude (dB)');
 title('LPC Filter Frequency Response');
