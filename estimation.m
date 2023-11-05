@@ -52,7 +52,7 @@ psd = abs(fft(autocorr_values));
 % ylabel('Power Spectral Density');
 % title('PSD of Autocorrelation');
 
-% filter noise frequency
+filter noise frequency
 noise_peak_thres = 0.25;
 noiseFrequencies = frequencies(psd < noise_peak_thres);
 noiseFrequencies = noiseFrequencies(noiseFrequencies > 0);
@@ -62,6 +62,23 @@ noiseFrequencies = noiseFrequencies(noiseFrequencies <= 12000);
     d = designfilt('highpassiir', 'FilterOrder', 10, 'StopbandFrequency', noiseFrequencies(1), 'SampleRate', Fs);
     filtered_x = filter(d, cropped_x);
 % end
+
+% noise_peak_thres = 0.25;
+% not_noiseFrequencies = frequencies(psd > noise_peak_thres);
+% not_noiseFrequencies = not_noiseFrequencies(not_noiseFrequencies > 0);
+% not_noiseFrequencies = not_noiseFrequencies(not_noiseFrequencies <= 12000);
+% filtered_x = zeros(size(cropped_x));
+% bandwidth = 5;
+% for i = 1:length(not_noiseFrequencies)
+%     centerFrequency = not_noiseFrequencies(i)
+% 
+%     d = designfilt('bandpassiir', 'FilterOrder', 10, ...
+%         'HalfPowerFrequency1', centerFrequency - bandwidth/2, ...
+%         'HalfPowerFrequency2', centerFrequency + bandwidth/2, ...
+%         'SampleRate', Fs);
+%     filtered_x = filtered_x + filter(d, cropped_x);
+% end
+
 
 pwr = max(abs(filtered_x))
 
