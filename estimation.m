@@ -19,6 +19,8 @@ figure(1);
 plot(lags/Fs,autocorr_values);
 xlabel('Lag');
 ylabel('Autocorrelation');
+title_txt = strcat('Autocorrelation of ', filename);
+title(title_txt);
 
 % shortest dist peaks
 [pksh,lcsh] = findpeaks(autocorr_values);
@@ -29,11 +31,13 @@ short = mean(diff(lcsh))/Fs    % noise  freq
 long = max(diff(lclg))/Fs  % for fundemental freq
 
 % check values functions
-% max(diff(lcsh))/Fs
-% max(diff(lclg))/Fs
+% max(diff(lcsh))
+% max(diff(lclg))
+% f1_p = lcsh(1)
+% f1 = Fs/long
 
 %% calculate fundemental freq
-f1 = (long / (2*pi)) * Fs
+f1 = 1/long
 
 hold on
 pks = plot(lags(lcsh)/Fs,pksh,'or', lags(lclg)/Fs,pklg+0.05,'vk');
@@ -52,7 +56,7 @@ psd = abs(fft(autocorr_values));
 % ylabel('Power Spectral Density');
 % title('PSD of Autocorrelation');
 
-filter noise frequency
+% filter noise frequency
 noise_peak_thres = 0.25;
 noiseFrequencies = frequencies(psd < noise_peak_thres);
 noiseFrequencies = noiseFrequencies(noiseFrequencies > 0);
@@ -107,12 +111,12 @@ title('Amplitude Spectrum of Filtered Signal');
 
 
 %% lpc
-order = 20;
-lpc_coefficients = lpc(filtered_x, order);
+order = 10;
+lpc_coefficients = arcov(filtered_x, order);
 [H, w] = freqz(1, lpc_coefficients, 1024);
 frequency_hz = (w / (2 * pi)) * Fs;
 
-fout = sprintf('%s_lpc%d_%d.mat', filename, order, num_samples);
+fout = sprintf('%s_arcov%d_%d.mat', filename, order, num_samples);
 save(fout,'lpc_coefficients');
 
 %% plot freq response
