@@ -12,7 +12,7 @@ num_samples = split(num_samples(4),".");
 num_samples = str2num(num_samples{1});
 
 % fundemental frequency and period
-f1 = 41.0620;
+f1 = 93.0233;
 Fs = 24000;
 f1_p = Fs/f1
 
