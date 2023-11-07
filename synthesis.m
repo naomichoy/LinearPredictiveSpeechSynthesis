@@ -2,7 +2,7 @@ clear all;
 
 % load lpc coefficient
 path='C:\Users\cat97\Documents\UniofSurrey\sem1\EEEM030-speech\assignment1\';
-fname = 'heed_m_lpc30_2400.mat';
+fname = 'heed_m_lpc20_1200.mat';
 fullpath=strcat(path,fname)
 load(fullpath,'lpc_coefficients');
 
@@ -12,7 +12,7 @@ num_samples = split(num_samples(4),".");
 num_samples = str2num(num_samples{1});
 
 % fundemental frequency and period
-f1 = 93.0233;
+f1 = 94.1176;
 Fs = 24000;
 f1_p = Fs/f1
 

@@ -1,5 +1,5 @@
 path='C:\Users\cat97\Documents\UniofSurrey\sem1\EEEM030-speech\assignment1\speech-samples\speech\';
-filename = 'heed_f';
+filename = 'heed_m';
 file=strcat(path,filename, ".wav")
 
 [x, Fs] = audioread(file);
@@ -27,12 +27,12 @@ title(title_txt);
 short = mean(diff(lcsh))/Fs    % noise  freq
 
 % longest dist peaks (max lag)
-[pklg,lclg] = findpeaks(autocorr_values,'MinPeakDistance',ceil(short),'MinPeakheight',0.3);
+[pklg,lclg] = findpeaks(autocorr_values,'MinPeakDistance',ceil(short),'MinPeakheight',0.5);
 long = max(diff(lclg))/Fs  % for fundemental freq
 
 % check values functions
-% max(diff(lcsh))
-% max(diff(lclg))
+max(diff(lcsh))
+max(diff(lclg))
 % f1_p = lcsh(1)
 % f1 = Fs/long
 
@@ -111,12 +111,12 @@ title('Amplitude Spectrum of Filtered Signal');
 
 
 %% lpc
-order = 10;
-lpc_coefficients = arcov(filtered_x, order);
+order = 20;
+lpc_coefficients = lpc(filtered_x, order);
 [H, w] = freqz(1, lpc_coefficients, 1024);
 frequency_hz = (w / (2 * pi)) * Fs;
 
-fout = sprintf('%s_arcov%d_%d.mat', filename, order, num_samples);
+fout = sprintf('%s_lpc%d_%d.mat', filename, order, num_samples);
 save(fout,'lpc_coefficients');
 
 %% plot freq response
